@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Mime;
 using JetBrains.Annotations;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -11,7 +12,8 @@ public class MainMenu : MonoBehaviour
     public GameObject normalMenu;
     public GameObject forgotMenu;
     public GameObject newUserMenu;
-    
+    public Text userPrompt;
+
     public void PlayLocalGame()
     {
         SceneManager.LoadScene(2);
@@ -38,6 +40,7 @@ public class MainMenu : MonoBehaviour
         normalMenu.SetActive(false);
         newUserMenu.SetActive(false);
         forgotMenu.SetActive(true);
+        userPrompt.text = "";
     }
 
     public void NewUser()
@@ -45,6 +48,7 @@ public class MainMenu : MonoBehaviour
         normalMenu.SetActive(false);
         forgotMenu.SetActive(false);
         newUserMenu.SetActive(true);
+        userPrompt.text = "";
     }
 
     public void NormalMenu()
@@ -52,5 +56,7 @@ public class MainMenu : MonoBehaviour
         forgotMenu.SetActive(false);
         newUserMenu.SetActive(false);
         normalMenu.SetActive(true);
+        userPrompt.text = "";
     }
 }
+

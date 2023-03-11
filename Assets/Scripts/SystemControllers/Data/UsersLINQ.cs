@@ -7,7 +7,7 @@ namespace SystemControllers.Data
     {
         [PrimaryKey] 
         [Column("userID")]
-        public string UserID
+        public int UserID
         { get; set; }
 
         [Column("username")]

@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using System.Linq;
 using JetBrains.Annotations;
 using SystemControllers.Data;
+using TMPro;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
@@ -23,6 +24,7 @@ namespace SystemControllers
         public InputField password;
         public InputField username;
         [CanBeNull] public InputField confirmPassword;
+        [CanBeNull] public Text userMessage;
 
         // This is a tuple for internal use only.
         // Contains an inputted username and hashed password.
@@ -62,6 +64,7 @@ namespace SystemControllers
 
         private void GetNormalLoginDetails()
         {
+            userMessage.text = " ";
             // Create the validation tuple by creating a new Tuple object with the username and hashed pwd.
             // The pwd is hashed here. 
             _toValidate = new Tuple<string, string>(username.text, HashToSHA256(password.text));
@@ -70,6 +73,7 @@ namespace SystemControllers
             if (!CheckUser() || !Validate())
             {
                 Debug.Log("Auth failed");
+                userMessage.text = "Incorrect details";
                 return;
             }
             SceneManager.LoadScene(3);
@@ -82,16 +86,20 @@ namespace SystemControllers
             // All we need to check here is if the username contains any banned keywords. If not, it is a valid new entry.
             if (!Validate()) return;
             _dbManager.InsertNewUser(_toValidate);
+            userMessage.text = "Successful creation";
         }
 
         private void ForgotUserDetails()
         {
+            userMessage.text = " ";
             Debug.Log("Forgot user");
+            // Debug.Log("E "  + password.text + " | " + confirmPassword.text);
             // Check if the confirm password field matches the new password field. If not, reject and return void.
             if (password.text != confirmPassword.text) return;
-            // 
             _toValidate = new Tuple<string, string>(username.text, HashToSHA256(password.text));
             _dbManager.UpdateUser(_toValidate);
+            Debug.Log("Updated user");
+            userMessage.text = "Updated user";
         }
         private static string HashToSHA256(string rawData)
         {
