@@ -34,7 +34,7 @@ namespace SystemControllers
         // This involves the creation of a new LINQ object for insertion.
         public void InsertNewUser(Tuple<string, string> insert)
         {
-            var newRecord = new UserLinq { UserID = 0, Username = insert.Item1, Password = insert.Item2};
+            var newRecord = new UserLinq { Username = insert.Item1, Password = insert.Item2};
             _conn.Insert(newRecord);
             Debug.Log($"Successful new user creation {insert.Item1} | {insert.Item2}");
         }
