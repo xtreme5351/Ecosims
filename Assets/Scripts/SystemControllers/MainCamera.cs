@@ -8,10 +8,14 @@ namespace SystemControllers
     {
         private readonly float movementSpeed = 0.5f;
         private readonly float flySpeed = 0.1f;
-        //private void Start()
-        //{
-        //    cam = GetComponent<Camera>();
-        //}
+        public GameObject self;
+        
+        // Instantiation method
+        private void Start()
+        {
+            // Set the camera object to the center of the simulation world.
+            self.transform.position = new Vector3(135, 20, 60);
+        }
 
         void Update()
         {
