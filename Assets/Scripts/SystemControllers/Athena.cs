@@ -5,6 +5,7 @@ using Mirror;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 namespace SystemControllers
 {
@@ -24,6 +25,7 @@ namespace SystemControllers
         // Public GameObject declaration, these need to be forced external imports
         public GameObject mainMenu;
         public GameObject simulation;
+        public Text sessionIDText;
         
         // Network Manager script import to query the status of the server
         private NetworkManager _networkManager;
@@ -58,6 +60,7 @@ namespace SystemControllers
                 mainMenu.SetActive(true);
                 _backgroundUI.SetActive(false);
             }
+            DisplaySessionID();
         }
     
         // Method that is called when the Host button is pressed
@@ -105,5 +108,11 @@ namespace SystemControllers
             }
             SceneManager.LoadScene(2);
         }
+
+        private void DisplaySessionID()
+        {
+            sessionIDText.text = $"{_networkManager.networkAddress}";
+        }
     }
 }
+
