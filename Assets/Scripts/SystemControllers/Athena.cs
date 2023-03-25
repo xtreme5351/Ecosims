@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
@@ -22,9 +23,14 @@ namespace SystemControllers
         private bool _isClient;
         private bool _isServer;
         
+        // Strings for file saving
+        private string _dataDirPath;
+        private string _dataFileName;
+
         // Public GameObject declaration, these need to be forced external imports
         public GameObject mainMenu;
         public GameObject simulation;
+        public GameObject saveData;
         public Text sessionIDText;
         
         // Network Manager script import to query the status of the server
@@ -46,6 +52,9 @@ namespace SystemControllers
             //  Instantiate the network manager with its script.
             _networkManager = GetComponent<NetworkManager>();
             Debug.Log("Updated");
+
+            _dataDirPath = "/Users/pc/Code/Unity Projects/Ecosims/Assets/Scripts/SystemControllers/Data";
+            _dataFileName = "SaveFile1.json";
         }
         
         // Method called every frame
@@ -112,6 +121,35 @@ namespace SystemControllers
         private void DisplaySessionID()
         {
             sessionIDText.text = $"{_networkManager.networkAddress}";
+        }
+        
+        public void Save()
+        {
+            // Path creation is platform independent as C# detects the platform and formats accordingly.
+            var fullPath = Path.Combine(_dataDirPath, _dataFileName);
+            
+            try
+            {
+                // Convert the data to store into a JSON object
+                string dataToStore = JsonUtility.ToJson("2", true);
+                
+                // Open two IO streams, one for file access, the other for write access
+                using (FileStream stream = new FileStream(fullPath, FileMode.Create))
+                {
+                    using (StreamWriter writer = new StreamWriter(stream))
+                    {
+                        // Make the writer an asynchronous task as it is non-critical
+                        // File saving does not have to be executed immediately and can be done as an async task
+                        writer.WriteAsync(dataToStore);
+                        Debug.Log("Success");
+                    }
+                }
+                
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Error: " + e);
+            }
         }
     }
 }
