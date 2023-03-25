@@ -60,7 +60,7 @@ namespace SystemControllers
         // Update method for updating an already existing save session with new information
         public void UpdateSaveSession(int userID, float duration)
         {
-            var newRecord = new SaveLinq {UserID = userID, Last = Time.time.ToString(), Duration = duration};
+            var newRecord = new SaveLinq {UserID = userID, Last = DateTime.Now.ToString(), Duration = duration};
             _conn.Update(newRecord);
             Debug.Log("Save session updated");
         }

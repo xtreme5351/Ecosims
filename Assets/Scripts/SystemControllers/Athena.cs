@@ -114,14 +114,14 @@ namespace SystemControllers
             if (_isServer)
             {
                 Debug.Log("Server stopped");
-                _networkManager.StopHost();
+                // _networkManager.StopHost();
                 _isServer = false;
             }
 
             if (_isClient)
             {
                 Debug.Log("Client dc");
-                _networkManager.StopClient();
+                // _networkManager.StopClient();
                 _isClient = false;
             }
             SceneManager.LoadScene(1);
