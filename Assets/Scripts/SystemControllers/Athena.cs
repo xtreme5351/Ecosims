@@ -106,7 +106,7 @@ namespace SystemControllers
                 _networkManager.StopClient();
                 _isClient = false;
             }
-            SceneManager.LoadScene(2);
+            SceneManager.LoadScene(1);
         }
 
         private void DisplaySessionID()
