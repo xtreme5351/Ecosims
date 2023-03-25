@@ -69,7 +69,7 @@ namespace AnimalBehaviors
             {
                 self.transform.position = new Vector3(0, 0, 0);
             }
-            experiencedTicks = tickedTime.currentTick;
+            experiencedTicks = tickedTime.CurrentTick;
             statDict["food"] += hungerGainedPerTick;
             statDict["water"] += thirstGainedPerTick;
             statDict["exhaustion"] += exhaustionGainedPerTick;

@@ -7,38 +7,57 @@ namespace SystemControllers
 {
     public class Chronos : MonoBehaviour
     {
-        private const float max_tick = 2f;
-        private int tick;
-        private float timer;
+        // Private variable declaration
+        // MaxTick refers to the max amount of real-life time that can pass before an in-game tick is experienced.
+        private const float MaxTick = 2f;
+        private int _tick;
+        private float _timer;
+        private float _clock;
+        
+        // Public dispatch delegate declaration
         public static event EventHandler<TickEventDispatcher> OnTick;
 
+        // Declaration of the dispatched tick event object itself
         public class TickEventDispatcher : EventArgs
         {
-            public int currentTick;
+            public int CurrentTick;
         }
 
         private void Start()
         {
-            tick = 0;
+            _tick = 0;
+            _clock = 0;
         }
 
-        public int GetCurrentTick()
+        public float GetCurrentDuration()
         {
-            return tick;
+            return _clock;
         }
 
         private void Update()
         {
-            timer += Time.deltaTime;
-            if (timer >= max_tick)
+            // Add the real-world time experienced between frames
+            _timer += Time.deltaTime;
+            // Add the timer value to the clock, as this is the same as the time-experienced
+            // This is purely an optimisation
+            _clock += _timer;
+            if (_timer >= MaxTick)
             {
-                timer -= max_tick;
-                tick++;
+                // Decrement or "reset" the timer
+                _timer -= MaxTick;
+                // Increment the total ticks experienced
+                _tick++;
+                // Dispatch an event to update all listeners of the new tick value
                 OnTick?.Invoke(this, new TickEventDispatcher
                 {
-                    currentTick = tick
+                    CurrentTick = _tick
                 });
             }
+        }
+        
+        public int GetCurrentTick()
+        {
+            return _tick;
         }
     }
 }
