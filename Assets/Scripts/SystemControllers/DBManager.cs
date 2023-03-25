@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SQLite4Unity3d;
 using SystemControllers.Data;
 using Unity.VisualScripting;
@@ -47,9 +48,38 @@ namespace SystemControllers
             _conn.Update(newRecord);
             Debug.Log($"Successful user update {insert.Item1} | {insert.Item2}");
         }
+
+        // Setter method for adding a saved session to the SaveSession table
+        public void AddSaveSession(int userID, float duration)
+        {
+            var newRecord = new SaveLinq {UserID = userID, Last = Time.time.ToString(), Duration = duration};
+            _conn.Insert(newRecord);
+            Debug.Log("New save session created");
+        }
         
+        // Update method for updating an already existing save session with new information
+        public void UpdateSaveSession(int userID, float duration)
+        {
+            var newRecord = new SaveLinq {UserID = userID, Last = Time.time.ToString(), Duration = duration};
+            _conn.Update(newRecord);
+            Debug.Log("Save session updated");
+        }
         
+        // Setter method for adding new session data to the SessionData table
+        public void AddSessionData(int sessionID, int internalTime, string pwd, string path)
+        {
+            var newRecord = new SessionLinq { SessionID = sessionID, InternalTime = internalTime, NumUsers = 1, SessionPwd = pwd, SavePath = path};
+            _conn.Insert(newRecord);
+            Debug.Log("New session data added");
+        }
         
+        // Update method for updating pre-existing session data with new information
+        public void UpdateSessionData(int sessionID, int internalTime, string pwd, string path)
+        {
+            var newRecord = new SessionLinq { SessionID = sessionID, InternalTime = internalTime, NumUsers = 1, SessionPwd = pwd, SavePath = path};
+            _conn.Update(newRecord);
+            Debug.Log("Session data updated");
+        }
     }
 }
 

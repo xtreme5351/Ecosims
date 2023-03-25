@@ -26,6 +26,10 @@ namespace SystemControllers
         // Strings for file saving
         private string _dataDirPath;
         private string _dataFileName;
+        private const string DBPath = "/Users/pc/Code/Unity Projects/Ecosims/Assets/Scripts/SystemControllers/Data/UserData.db";
+        private DBManager _dbManager;
+        private float _clock;
+        private int _ticks;
 
         // Public GameObject declaration, these need to be forced external imports
         public GameObject mainMenu;
@@ -55,6 +59,11 @@ namespace SystemControllers
 
             _dataDirPath = "/Users/pc/Code/Unity Projects/Ecosims/Assets/Scripts/SystemControllers/Data";
             _dataFileName = "SaveFile1.json";
+            
+            // Database manager initialisation. 
+            _dbManager = new DBManager(DBPath);
+
+            Chronos.OnTick += UpdateClock;
         }
         
         // Method called every frame
@@ -141,6 +150,8 @@ namespace SystemControllers
                         // Make the writer an asynchronous task as it is non-critical
                         // File saving does not have to be executed immediately and can be done as an async task
                         writer.WriteAsync(dataToStore);
+                        _dbManager.AddSaveSession(1, _clock);
+                        _dbManager.AddSessionData(1, _ticks, "test", fullPath);
                         Debug.Log("Success");
                     }
                 }
@@ -150,6 +161,14 @@ namespace SystemControllers
             {
                 Debug.Log("Error: " + e);
             }
+        }
+        
+        // Unwrap method for the tick event objects from chronos
+        // Updates the clock and tick count of this object, based on when chronos sends it
+        private void UpdateClock(object sender, Chronos.TickEventDispatcher chronos)
+        {
+            _clock = chronos.Clock;
+            _ticks += chronos.CurrentTick;
         }
     }
 }

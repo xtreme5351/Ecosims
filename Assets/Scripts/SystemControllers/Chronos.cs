@@ -21,6 +21,7 @@ namespace SystemControllers
         public class TickEventDispatcher : EventArgs
         {
             public int CurrentTick;
+            public float Clock;
         }
 
         private void Start()
@@ -50,7 +51,7 @@ namespace SystemControllers
                 // Dispatch an event to update all listeners of the new tick value
                 OnTick?.Invoke(this, new TickEventDispatcher
                 {
-                    CurrentTick = _tick
+                    Clock = _clock, CurrentTick = _tick
                 });
             }
         }
