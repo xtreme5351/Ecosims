@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Linq;
 using SystemControllers;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace AnimalBehaviors
@@ -31,6 +32,7 @@ namespace AnimalBehaviors
         private float exhaustionGainedPerTick;
         private float exhaustionWalking = 0f;
         private float exhaustionRunning = 0f;
+        public float mass;
 
         private readonly float sleepThreshold = 0.2f;
         private float deathPerTick = 0f;
@@ -41,11 +43,11 @@ namespace AnimalBehaviors
         private float searchRadius = 50f;
         private int experiencedTicks;
 
-        private Dictionary<string, float> statDict;
+        public Dictionary<string, float> statDict;
         private Dictionary<string, GameObject[]> resourceMap;
 
         // New stat declaration for mating
-        private int _age;
+        public int age;
         private float _lust;
         public GameObject mate;
         public bool canMate;
@@ -62,6 +64,7 @@ namespace AnimalBehaviors
             _water = GameObject.Find("Water");
             _food = GameObject.FindGameObjectsWithTag(foodType);
             exhaustionGainedPerTick = (float) Math.Round(Mathf.Sqrt(_hungerGainedPerTick + _thirstGainedPerTick), 4);
+            mass = 1.0f;
             statDict.Add("food", 0f);
             statDict.Add("water", 0f);
             statDict.Add("exhaustion", 0f);
@@ -69,7 +72,7 @@ namespace AnimalBehaviors
             resourceMap.Add("food", _food);
             resourceMap.Add("water", new GameObject[] { _water });
             _normalY = transform.position.y;
-            _age = 0;
+            age = 0;
             _lust = 0;
             currentEulerAngleVector += new Vector3(0, 0, Random.Range(-360, 360)) * rotationSpeed;
             Chronos.OnTick += Life;
@@ -79,12 +82,12 @@ namespace AnimalBehaviors
 
         private void Life(object sender, Chronos.TickEventDispatcher tickedTime)
         {
-            if (self.transform.position.y < 0 || (transform.position.y - _normalY) * Time.deltaTime > 0)
+            if (self.transform.position.y < 0)
             {
                 self.transform.position = new Vector3(0, _normalY, 0);
             }
 
-            if (_age > 150 || statDict["death"] >= 100.0f)
+            if (age > 150 || statDict["death"] >= 100.0f)
             {
                 Destroy(self);
             }
@@ -94,7 +97,7 @@ namespace AnimalBehaviors
             statDict["water"] += _thirstGainedPerTick;
             statDict["exhaustion"] += exhaustionGainedPerTick;
             statDict["death"] += 0f;
-            _age += experiencedTicks;
+            age += experiencedTicks;
             // Debug.Log(experiencedTicks);
             // Mood is the average of the three stats
             mood = (300 - (statDict["food"] + statDict["water"] + statDict["exhaustion"])) / 300;
@@ -120,7 +123,7 @@ namespace AnimalBehaviors
             else
             {
                 // Only start reproducing once the animals have experienced 1/3 of their lives
-                if (_age >= 50)
+                if (age >= 50)
                 {
                     _lust += mood;
                 }

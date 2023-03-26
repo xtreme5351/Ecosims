@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using SystemControllers;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class MouseTarget : MonoBehaviour
 {
@@ -11,6 +14,15 @@ public class MouseTarget : MonoBehaviour
     private RaycastHit hit;
 
     public string canPlace;
+    
+    // Public dispatch delegate declaration
+    public static event EventHandler<UserClickEventDispatcher> OnClick;
+
+    // Declaration of the dispatched tick event object itself
+    public class UserClickEventDispatcher : EventArgs
+    {
+        public GameObject Clicked;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -21,16 +33,40 @@ public class MouseTarget : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        PlaceObjectAtMousePos();
+        // If clicked and placeholder is there, then get its name, if not, we know the user wants to place something.
+        // So invoke the place method in the latter condition
+        if (!Input.GetMouseButtonDown(0)) return;
+        if (canPlace != "§")
+        {
+            PlaceObjectAtMousePos();
+        }
+        else if (canPlace == "§")
+        {
+            GetObjectAtMousePos();
+        }
     }
 
+    // Method to get the name of the object at the mouse position
+    private void GetObjectAtMousePos()
+    {
+        // If blank space is clicked, exit
+        if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) return; 
+        // Ignore land
+        if (hit.transform.CompareTag("Land")) return;
+        
+        // On a valid click, send an event broadcast to all subscribed objects
+        OnClick?.Invoke(this, new UserClickEventDispatcher
+        {
+            Clicked = hit.transform.gameObject
+        });
+        canPlace = "§";
+    }
+    
     private void PlaceObjectAtMousePos()
     {
-        if (Input.GetMouseButtonDown(0) && canPlace != "§")
+        objectToPlace = GameObject.FindGameObjectWithTag(canPlace);
+        if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
         {
-            objectToPlace = GameObject.FindGameObjectWithTag(canPlace);
-            if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit))
-            {
                 if (hit.transform.CompareTag("Land"))
                 {
                     place = new Vector3(hit.point.x, hit.point.y, hit.point.z);
@@ -42,7 +78,6 @@ public class MouseTarget : MonoBehaviour
                     Instantiate(objectToPlace, place, orientation);
                     canPlace = "§";
                 }
-            }
         }
     }
 
