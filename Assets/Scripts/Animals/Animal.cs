@@ -16,16 +16,16 @@ namespace AnimalBehaviors
         private float rotationSpeed = 0.9f;
         private Vector3 currentEulerAngleVector;
 
-        private float idleDetectRadius = 0;
-        private Motion motionController;
+        private float _idleDetectRadius = 0;
+        private Motion _motionController;
 
         public string foodType = "Vegan";
-        private GameObject[] food;
+        private GameObject[] _food;
         //private float hungerSearchRad = 75;
-        private readonly float hungerGainedPerTick = 0.05f;
+        private readonly float _hungerGainedPerTick = 0.05f;
 
-        private GameObject water;
-        private readonly float thirstGainedPerTick = 0.1f;
+        private GameObject _water;
+        private readonly float _thirstGainedPerTick = 0.1f;
         //private float waterSearchRad = 200;
 
         private float exhaustionGainedPerTick;
@@ -48,18 +48,18 @@ namespace AnimalBehaviors
         {
             mood = 1.0f;
             self = gameObject;
-            motionController = new Motion(walkingSpeed, self, self.GetComponent<Rigidbody>());
+            _motionController = new Motion(walkingSpeed, self, self.GetComponent<Rigidbody>());
             statDict = new Dictionary<string, float>();
             resourceMap = new Dictionary<string, GameObject[]>();
-            water = GameObject.Find("Water");
-            food = GameObject.FindGameObjectsWithTag(foodType);
-            exhaustionGainedPerTick = (float) Math.Round(Mathf.Sqrt(hungerGainedPerTick + thirstGainedPerTick), 4);
+            _water = GameObject.Find("Water");
+            _food = GameObject.FindGameObjectsWithTag(foodType);
+            exhaustionGainedPerTick = (float) Math.Round(Mathf.Sqrt(_hungerGainedPerTick + _thirstGainedPerTick), 4);
             statDict.Add("food", 0f);
             statDict.Add("water", 0f);
             statDict.Add("exhaustion", 0f);
             statDict.Add("death", 0f);
-            resourceMap.Add("food", food);
-            resourceMap.Add("water", new GameObject[] { water });
+            resourceMap.Add("food", _food);
+            resourceMap.Add("water", new GameObject[] { _water });
             Chronos.OnTick += Life;
         }
 
@@ -70,21 +70,27 @@ namespace AnimalBehaviors
                 self.transform.position = new Vector3(0, 0, 0);
             }
             experiencedTicks = tickedTime.CurrentTick;
-            statDict["food"] += hungerGainedPerTick;
-            statDict["water"] += thirstGainedPerTick;
+            statDict["food"] += _hungerGainedPerTick;
+            statDict["water"] += _thirstGainedPerTick;
             statDict["exhaustion"] += exhaustionGainedPerTick;
-            statDict["death"] += 0;
+            statDict["death"] += 0f;
             // Debug.Log(experiencedTicks);
+            // Mood is the average of the three stats
             mood = (300 - (statDict["food"] + statDict["water"] + statDict["exhaustion"])) / 300;
-            if (mood <= 0.69f)
+            // Arbitrary threshold
+            if (mood <= 0.70f)
             {
-                string lowestResourceName = statDict.FirstOrDefault(x => x.Value == statDict.Values.Max()).Key;
+                // Get the factor that is causing the low mood
+                var lowestResourceName = statDict.FirstOrDefault(x => x.Value == statDict.Values.Max()).Key;
                 if (lowestResourceName == "exhaustion")
                 {
+                    // Sleep if exhausted
                     Sleep(); 
                 }
                 else
                 {
+                    // Start dying due to lack of food or water
+                    // Resolve the lowest resource first, which is often water
                     StartDeathDecay();
                     GetLocalResource(resourceMap[lowestResourceName][0]);
                     MoveToTarget();
@@ -92,9 +98,11 @@ namespace AnimalBehaviors
             }
             else
             {
+                // If everything else is fine, then simply idle. 
                 IdleState();
             }
         }
+        
 
         private void OnCollisionEnter(Collision collision)
         {
@@ -119,24 +127,24 @@ namespace AnimalBehaviors
 
         private void MoveToTarget()
         {
-            if (experiencedTicks % 2 == 0)
-            {
-                transform.position = Vector3.Lerp(transform.position, target.position, 0.1f);
-            }
+            transform.position = Vector3.Lerp(transform.position, target.position, 0.1f);
         }
 
         private void IdleState()
         {
-            if (experiencedTicks % 2 == 0)
-            {
-                currentEulerAngleVector += new Vector3(0, 0, Random.Range(-360, 360)) * rotationSpeed;
-                self.transform.Rotate(currentEulerAngleVector);
-                self.transform.position += self.transform.right * 10f;
-            }
+            currentEulerAngleVector += new Vector3(0, 0, Random.Range(-360, 360)) * rotationSpeed;
+            self.transform.Rotate(currentEulerAngleVector);
+            self.transform.position += self.transform.right * 10f;
         }
 
+        // Method called when the animal is exhausted.
         private void Sleep()
         {
+            // Since no other movement method is called, the animal just "sleeps" stationary
+            statDict["exhaustion"] -= 1.0f;
+            // Lower metabolic rate
+            statDict["food"] += 0.001f;
+            statDict["water"] += 0.001f;
             Debug.Log("Sleeping");
         }
 
