@@ -44,6 +44,8 @@ namespace AnimalBehaviors
         private Dictionary<string, float> statDict;
         private Dictionary<string, GameObject[]> resourceMap;
 
+        private int _age;
+
         void Start()
         {
             mood = 1.0f;
@@ -61,6 +63,7 @@ namespace AnimalBehaviors
             resourceMap.Add("food", _food);
             resourceMap.Add("water", new GameObject[] { _water });
             Chronos.OnTick += Life;
+            _age = 0;
         }
 
         private void Life(object sender, Chronos.TickEventDispatcher tickedTime)
@@ -69,11 +72,18 @@ namespace AnimalBehaviors
             {
                 self.transform.position = new Vector3(0, 0, 0);
             }
+
+            if (_age > 150 || statDict["death"] >= 100.0f)
+            {
+                Destroy(self);
+            }
+            
             experiencedTicks = tickedTime.CurrentTick;
             statDict["food"] += _hungerGainedPerTick;
             statDict["water"] += _thirstGainedPerTick;
             statDict["exhaustion"] += exhaustionGainedPerTick;
             statDict["death"] += 0f;
+            _age += experiencedTicks;
             // Debug.Log(experiencedTicks);
             // Mood is the average of the three stats
             mood = (300 - (statDict["food"] + statDict["water"] + statDict["exhaustion"])) / 300;
