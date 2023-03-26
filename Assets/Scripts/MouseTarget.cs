@@ -37,7 +37,7 @@ public class MouseTarget : MonoBehaviour
                     Quaternion orientation = Quaternion.identity;
                     if (canPlace == "Animal")
                     {
-                        orientation = Quaternion.Euler(270f, 0f, 0f);
+                        orientation = Quaternion.Euler(270f, Random.Range(0, 360), Random.Range(0, 360));
                     }
                     Instantiate(objectToPlace, place, orientation);
                     canPlace = "§";

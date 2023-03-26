@@ -44,7 +44,13 @@ namespace AnimalBehaviors
         private Dictionary<string, float> statDict;
         private Dictionary<string, GameObject[]> resourceMap;
 
+        // New stat declaration for mating
         private int _age;
+        private float _lust;
+        public GameObject mate;
+        public bool canMate;
+
+        private float _normalY; 
 
         void Start()
         {
@@ -62,15 +68,20 @@ namespace AnimalBehaviors
             statDict.Add("death", 0f);
             resourceMap.Add("food", _food);
             resourceMap.Add("water", new GameObject[] { _water });
-            Chronos.OnTick += Life;
+            _normalY = transform.position.y;
             _age = 0;
+            _lust = 0;
+            currentEulerAngleVector += new Vector3(0, 0, Random.Range(-360, 360)) * rotationSpeed;
+            Chronos.OnTick += Life;
         }
+        
+        
 
         private void Life(object sender, Chronos.TickEventDispatcher tickedTime)
         {
-            if (self.transform.position.y < 0)
+            if (self.transform.position.y < 0 || (transform.position.y - _normalY) * Time.deltaTime > 0)
             {
-                self.transform.position = new Vector3(0, 0, 0);
+                self.transform.position = new Vector3(0, _normalY, 0);
             }
 
             if (_age > 150 || statDict["death"] >= 100.0f)
@@ -108,8 +119,27 @@ namespace AnimalBehaviors
             }
             else
             {
-                // If everything else is fine, then simply idle. 
-                IdleState();
+                // Only start reproducing once the animals have experienced 1/3 of their lives
+                if (_age >= 50)
+                {
+                    _lust += mood;
+                }
+                // Check for arbitrary threshold
+                // A mood check could be done here, however, due to the previous condition,
+                // we already know the animal is in a good mood. 
+                if (_lust >= 50)
+                {
+                    // Set the publicly broad-casted variable to true
+                    canMate = true;
+                    // Get all potential mates in the nearby collider sphere's radius
+                    GetLocalResource(mate);
+                    MoveToTarget();
+                }
+                else
+                {
+                    // If everything else is fine, then simply idle. 
+                    IdleState();
+                }
             }
         }
         
@@ -118,8 +148,17 @@ namespace AnimalBehaviors
         {
             if (target != null && collision.gameObject.name == target.name)
             {
-                EndDeathDecay();
-                print("Collided with" + collision.gameObject.name);
+                // Special case if the collision is with another object who is of the mate species. 
+                if (collision.gameObject.name == mate.name)
+                {
+                    GetMateDetails(collision);
+                }
+                else
+                {
+                    EndDeathDecay();
+                    print("Collided with" + collision.gameObject.name);
+                    Destroy(collision.gameObject);
+                }
             }
         }   
 
@@ -167,5 +206,17 @@ namespace AnimalBehaviors
         {
             deathPerTick = 0f;
         }
+
+        // Method to poll the details of a potential mate
+        private void GetMateDetails(Collision potentialMate)
+        {
+            // If the potential mate is not ready, then leave
+            if (!potentialMate.gameObject.GetComponent<Animal>().canMate) return;
+            // If the mate is ready, spawn a "child" can set the lust to 0, putting reproduction on a cooldown.
+            Instantiate(self);
+            _lust = 0;
+            canMate = false;
+        }
     }
 }
+
