@@ -74,21 +74,21 @@ namespace AnimalBehaviors
             statDict["water"] += thirstGainedPerTick;
             statDict["exhaustion"] += exhaustionGainedPerTick;
             statDict["death"] += 0;
-            Debug.Log(experiencedTicks);
+            // Debug.Log(experiencedTicks);
             mood = (300 - (statDict["food"] + statDict["water"] + statDict["exhaustion"])) / 300;
             if (mood <= 0.69f)
             {
                 string lowestResourceName = statDict.FirstOrDefault(x => x.Value == statDict.Values.Max()).Key;
-                //if (lowestResourceName == "exhaustion")
-                //{
-                //    Sleep();
-                //}
-                //else
-                //{
+                if (lowestResourceName == "exhaustion")
+                {
+                    Sleep(); 
+                }
+                else
+                {
                     StartDeathDecay();
                     GetLocalResource(resourceMap[lowestResourceName][0]);
                     MoveToTarget();
-                //}
+                }
             }
             else
             {
@@ -119,7 +119,10 @@ namespace AnimalBehaviors
 
         private void MoveToTarget()
         {
-            transform.position = Vector3.Lerp(transform.position, target.position, 0.1f);
+            if (experiencedTicks % 2 == 0)
+            {
+                transform.position = Vector3.Lerp(transform.position, target.position, 0.1f);
+            }
         }
 
         private void IdleState()
