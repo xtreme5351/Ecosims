@@ -51,9 +51,8 @@ public class MouseTarget : MonoBehaviour
     {
         // If blank space is clicked, exit
         if (!Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out hit)) return; 
-        // Ignore land
+        // Ignore land and walls
         if (hit.transform.CompareTag("Land")) return;
-        
         // On a valid click, send an event broadcast to all subscribed objects
         OnClick?.Invoke(this, new UserClickEventDispatcher
         {
@@ -81,10 +80,12 @@ public class MouseTarget : MonoBehaviour
         }
     }
 
-    public void PlaceTree() { canPlace = "Tree"; }
+    public void PlaceGrass() { canPlace = "Grass"; }
 
     public void PlaceBerries() { canPlace = "Berries"; }
 
     public void PlaceAnimal() { canPlace = "Animal"; }
+
+    public void PlaceTrees() { canPlace = "Trees"; }
 }
 

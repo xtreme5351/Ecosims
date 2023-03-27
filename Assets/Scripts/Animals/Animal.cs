@@ -102,7 +102,7 @@ namespace AnimalBehaviors
             // Mood is the average of the three stats
             mood = (300 - (statDict["food"] + statDict["water"] + statDict["exhaustion"])) / 300;
             // Arbitrary threshold
-            if (mood <= 0.70f)
+            if (mood <= 0.69f)
             {
                 // Get the factor that is causing the low mood
                 var lowestResourceName = statDict.FirstOrDefault(x => x.Value == statDict.Values.Max()).Key;
