@@ -87,5 +87,9 @@ public class MouseTarget : MonoBehaviour
     public void PlaceAnimal() { canPlace = "Animal"; }
 
     public void PlaceTrees() { canPlace = "Trees"; }
+
+    public void PlaceTurtle() { canPlace = "Turtle"; }
+
+    public void PlaceFox() { canPlace = "Fox"; }
 }
 
